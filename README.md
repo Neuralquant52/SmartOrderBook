@@ -1,4 +1,4 @@
-Before any further advancement, read this thread : 
+Before any further advancement, read this thread :
 https://x.com/localminimaa/status/2034630639664652465
 
 # SmartOrderBook
@@ -7,6 +7,8 @@ Real-time market microstructure engine in modern C++20. It streams live
 Binance Futures trades and order book data, and computes microstructure
 metrics and execution signals concurrently on every update.
 
+Built by [Neuralquant52](https://github.com/Neuralquant52) and [dpintodebrito](https://github.com/dpintodebrito).
+
 ## Features
 
 | Metric | What it gives you |
@@ -14,8 +16,8 @@ metrics and execution signals concurrently on every update.
 | **Kyle's lambda** | Price impact per unit of signed volume |
 | **VPIN** | Volume-synchronized probability of informed trading (toxicity) |
 | **Hawkes process** | Trade arrival intensity and branching ratio (self-excitation) |
-| **Avellaneda-Stoikov (generateASBidAsk)** | Optimal bid/ask quotes given inventory and risk aversion |
-| **Almgren-Chriss (smartFillCalculator)** | Optimal execution schedule for a parent order|
+| **Avellaneda-Stoikov** (`generateASBidAsk`) | Optimal bid/ask quotes given inventory and risk aversion |
+| **Almgren-Chriss** (`smartFillCalculator`) | Optimal execution schedule for a parent order |
 
 ## Architecture
 
@@ -25,18 +27,28 @@ metrics and execution signals concurrently on every update.
  Binance WS (depth)   ──► Orderbook    ──► Buffer<obTick> ──┘      │
                                                                     ├─ worker: Kyle's lambda
                                                                     ├─ worker: Hawkes
-                                                                    ├─ worker: VPIN
-                                                                    └─ worker: execution (A-C)
+                                                                    └─ worker: VPIN
 ```
 
+Kyle's lambda, Hawkes and VPIN run as background workers.
+Avellaneda-Stoikov and Almgren-Chriss are called on demand.
+
 - One thread per stream and per metric, managed with `std::jthread` / `std::stop_token`
-- Lock-free ring buffer (`Buffer<T, N>`, power-of-two size, masked indexing)
+- Fixed-size ring buffer (`Buffer<T, N>`, power-of-two size, masked indexing)
 - Spinlock-protected `SmartTick` snapshot, readable from any thread
 - Fetchers are pluggable: bring your own exchange (see below)
 
 ## Quick start
 
 **Requirements:** C++20 compiler, Boost (Asio, Beast, JSON), OpenSSL.
+
+On Ubuntu/Debian:
+
+```bash
+sudo apt install build-essential libboost-all-dev libssl-dev
+```
+
+Build and run:
 
 ```bash
 git clone https://github.com/Neuralquant52/SmartOrderBook.git
@@ -51,7 +63,8 @@ g++ -std=c++20 -O2 -I. main.cpp -o main -lssl -lcrypto -lpthread
 Orderbook ob;
 TimeAndSales tns;
 
-SmartOB<2048, 10> sob(ob, tns);          // buffer size, order book levels
+// template parameters: buffer size (must be a power of two), order book levels
+SmartOB<2048, 10> sob(ob, tns);
 sob.fillSmartTick(kyleLambdaThreshold, vpinThreshold);
 
 SmartTick t = sob.getTick();             // thread-safe snapshot
@@ -61,12 +74,11 @@ SmartTick t = sob.getTick();             // thread-safe snapshot
 
 See [`features/fetch/README.md`](features/fetch/README.md).
 
-## Design choices
+## Questions
 
-- **Why a ring buffer?** Fixed memory, no allocation on the hot path
-- **Why one thread per metric?** Metrics have very different costs
-  (Hawkes fitting vs. VPIN), so a slow one never delays the others
-- *(add 1 or 2 of your own, this is what recruiters read)*
+- **Why did we build it?** We have both been interested in finance since a young age, and building this kind of project is a real passion for us. As a developer, it also let me apply many things I had learned (ring buffer, concurrent programming, spin-wait mutex).
+- **What mistakes did we make while building it?** (NeuralQuant) Not rereading my notes. I could have learned much more by applying more of what was in them, especially on the threading side.
+- **What would I do differently if I rewrote this code?** Plan first and structure the architecture with a tool like Excalidraw, because structuring the code was the hardest part. I would also gather all the resources before writing anything: I had to learn many math concepts along the way, as well as software design (e.g. *C++ Software Design*), which I should have read before starting.
 
 ## Limitations / roadmap
 
@@ -80,7 +92,12 @@ See [`features/fetch/README.md`](features/fetch/README.md).
 - Easley, López de Prado, O'Hara (2012), *Flow Toxicity and Liquidity*
 - Avellaneda & Stoikov (2008), *High-frequency trading in a limit order book*
 - Almgren & Chriss (2000), *Optimal execution of portfolio transactions*
-- Inspired by [this post](https://x.com/localminimaa/status/2034630639664652465)
+- Inspired by [this thread](https://x.com/localminimaa/status/2034630639664652465)
+
+## Authors
+
+- [Neuralquant52](https://github.com/Neuralquant52)
+- [dpintodebrito](https://github.com/dpintodebrito)
 
 ## License
 
