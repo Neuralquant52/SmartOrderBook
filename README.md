@@ -76,9 +76,15 @@ See [`features/fetch/README.md`](features/fetch/README.md).
 
 ## Questions
 
-- **Why did we build it?** We have both been interested in finance since a young age, and building this kind of project is a real passion for us. As a developer, it also let me apply many things I had learned (ring buffer, concurrent programming, spin-wait mutex).
-- **What mistakes did we make while building it?** (NeuralQuant) Not rereading my notes. I could have learned much more by applying more of what was in them, especially on the threading side.
-- **What would I do differently if I rewrote this code?** Plan first and structure the architecture with a tool like Excalidraw, because structuring the code was the hardest part. I would also gather all the resources before writing anything: I had to learn many math concepts along the way, as well as software design (e.g. *C++ Software Design*), which I should have read before starting.
+- **Why did we build it?**
+(NeuralQuant) We have both been interested in finance since a young age, and building this kind of project is a real passion for us. As a developer, it also let me apply many things I had learned (ring buffer, concurrent programming, spin-wait mutex).
+(dpintodebrito) I have always been interested in mathematics and quantitative finance. This project allowed me to apply concepts I had studied, particularly market microstructure, stochastic processes, statistical modeling and optimal execution (Kyle's Lambda, VPIN, Hawkes processes, Avellaneda-Stoikov and Almgren-Chriss).
+- **What mistakes did we make while building it?**
+(NeuralQuant) Not rereading my notes. I could have learned much more by applying more of what was in them, especially on the threading side.
+(dpintodebrito) Not spending enough time understanding the mathematical assumptions behind each model. I could have done more research on stochastic processes, order flow imbalance and statistical calibration before implementing them.
+- **What would I do differently if I rewrote this code?**
+(NeuralQuant) Plan first and structure the architecture with a tool like Excalidraw, because structuring the code was the hardest part. I would also gather all the resources before writing anything: I had to learn many math concepts along the way, as well as software design (e.g. *C++ Software Design*), which I should have read before starting.
+(dpintodebrito) Build a backtesting framework first to validate the models on historical data. I would also spend more time studying market microstructure (e.g. Trading and Exchanges by Larry Harris) and stochastic processes before implementing the models.
 
 ## Limitations / roadmap
 
@@ -92,6 +98,7 @@ See [`features/fetch/README.md`](features/fetch/README.md).
 - Easley, López de Prado, O'Hara (2012), *Flow Toxicity and Liquidity*
 - Avellaneda & Stoikov (2008), *High-frequency trading in a limit order book*
 - Almgren & Chriss (2000), *Optimal execution of portfolio transactions*
+- Trading and Exchanges, Larry Harris
 - Inspired by [this thread](https://x.com/localminimaa/status/2034630639664652465)
 
 ## Authors
